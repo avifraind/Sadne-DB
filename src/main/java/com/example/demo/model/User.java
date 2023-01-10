@@ -7,7 +7,8 @@ import lombok.*;
 @Setter
 @RequiredArgsConstructor
 public class User {
-    public final String firstName;
-    public final String lastName;
+    public final String user_id;
+
+    public final String name;
     public final String password;
 }

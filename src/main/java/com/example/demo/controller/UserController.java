@@ -37,6 +37,9 @@ public class UserController {
         }
 
         boolean res = userService.createNewUser(user);
+        if (!res) {
+            return new ResponseEntity<>("Name or password already in use", HttpStatus.BAD_REQUEST);
+        }
         return new ResponseEntity<>("User created", HttpStatus.OK);
     }
 
