@@ -12,6 +12,8 @@ public class Filters {
     public TitleFilter titleFilter;
 
     public GenreFilter genreFilter;
+    public RecommendedToUserFilter recommendedToUserFilter;
+    public UserRecommendedToOtherFilter userRecommendedToOtherFilter;
 }
 
 

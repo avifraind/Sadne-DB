@@ -1,5 +1,5 @@
 package com.example.demo.model.filters;
 
-public class RecommendedFilter {
+public class RecommendedToUserFilter {
     public boolean isActive;
 }

@@ -21,9 +21,9 @@ public class UserController {
     public ResponseEntity<?> isUserAuth(@CookieValue(name = "user-id", defaultValue = "-1") String userId) {
         if (userId.equals("-1"))
         {
-            return new ResponseEntity<>("true", HttpStatus.OK);
+            return new ResponseEntity<>("false", HttpStatus.OK);
         }
-        return new ResponseEntity<>("false", HttpStatus.OK);
+        return new ResponseEntity<>("true", HttpStatus.OK);
     }
 
     //need to check if there is already a user with the same name and password.
@@ -44,7 +44,7 @@ public class UserController {
     }
 
     //front end should check if user logged in already.
-    @RequestMapping(value = "/login", method = RequestMethod.GET)
+    @RequestMapping(value = "/login", method = RequestMethod.PUT)
     public ResponseEntity<?> login(@RequestBody User user) {
         long id = userService.getUserId(user);
         if (id == -1) {

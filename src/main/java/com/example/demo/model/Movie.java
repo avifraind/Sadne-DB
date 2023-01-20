@@ -24,5 +24,6 @@ public class Movie {
     public final List<String> actors;
     public final List<String> genres;
     public final List<String> keywords;
-//    public final List<User> recommendedToMe;
+    public final List<String> user1Recommended;
+    public final List<String> user2RecommendedToUser1;
 }

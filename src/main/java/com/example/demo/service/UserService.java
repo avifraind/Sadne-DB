@@ -12,33 +12,30 @@ public class UserService {
         if (isUserExists(user)) {
             return false;
         }
-        String sqlSelectAllPersons = String.format("SELECT COUNT(*) FROM users WHERE name='%s' AND password='%s'", user.name, user.password);
+        Boolean res = false;
+        String sqlSelectAllPersons = String.format("INSERT INTO users (name, password)\n values ('%s', '%s')", user.name, user.password);
         String connectionUrl = DbService.DB_CONNECTION_URL;
         try (Connection conn = DriverManager.getConnection(connectionUrl, DbService.DB_USER, DbService.DB_PASSWORD);
-             PreparedStatement ps = conn.prepareStatement(sqlSelectAllPersons);
-             ResultSet rs = ps.executeQuery()) {
+             Statement stmt = conn.createStatement();
+             ) {
             System.out.println("Database connected!");
+            stmt.executeUpdate(sqlSelectAllPersons);
+            res = true;
 
-
-            while (rs.next()) {
-                int count = rs.getInt(1);
-                if (count != 1) {
-                    return false;
-                }
-                return true;
-            }
         } catch (SQLException e) {
             System.out.println("Database not connected!");
+            res = false;
         }
-        return false;
 
-
-//        return false;
+        return res;
     }
 
     public Boolean isUserExists(User user) {
         if (user.name == null || user.password == null) {
             return false;
+        }
+        if (isUserNameExists(user)) {
+            return true;
         }
         String sqlSelectAllPersons = String.format("SELECT COUNT(*) FROM users WHERE name='%s' AND password='%s'", user.name, user.password);
         String connectionUrl = DbService.DB_CONNECTION_URL;
@@ -61,14 +58,12 @@ public class UserService {
         return false;
     }
 
-    public User getUserInfo(long id) {
-        if (id < 0) {
-            return null;
+    public Boolean isUserNameExists(User user) {
+        if (user.name == null) {
+            return true;
         }
-
-        String sqlSelectAllPersons = String.format("SELECT * FROM users WHERE user_id=%s", String.valueOf(id));
+        String sqlSelectAllPersons = String.format("SELECT COUNT(*) FROM users WHERE name='%s'", user.name);
         String connectionUrl = DbService.DB_CONNECTION_URL;
-        User user = null;
         try (Connection conn = DriverManager.getConnection(connectionUrl, DbService.DB_USER, DbService.DB_PASSWORD);
              PreparedStatement ps = conn.prepareStatement(sqlSelectAllPersons);
              ResultSet rs = ps.executeQuery()) {
@@ -76,17 +71,16 @@ public class UserService {
 
 
             while (rs.next()) {
-                String user_id = rs.getString("user_id");
-                String name = rs.getString("name");
-                String password = rs.getString("password");
-                user = new User(user_id, name, password);
-
-
+                int count = rs.getInt(1);
+                if (count == 0) {
+                    return false;
+                }
+                return true;
             }
         } catch (SQLException e) {
             System.out.println("Database not connected!");
         }
-        return user;
+        return true;
     }
 
     public long getUserId(User user) {
@@ -104,7 +98,51 @@ public class UserService {
             System.out.println("Database connected!");
 
             while (rs.next()) {
-                id = rs.getLong("id");
+                id = rs.getLong("user_id");
+            }
+        } catch (SQLException e) {
+            System.out.println("Database not connected!");
+        }
+        return id;
+    }
+
+    public String getUserName(String userId) {
+        if (userId == null) {
+            return "";
+        }
+
+        String sqlSelectAllPersons = String.format("SELECT name FROM users WHERE user_id=%s", userId);
+        String connectionUrl = DbService.DB_CONNECTION_URL;
+        String name = "";
+        try (Connection conn = DriverManager.getConnection(connectionUrl, DbService.DB_USER, DbService.DB_PASSWORD);
+             PreparedStatement ps = conn.prepareStatement(sqlSelectAllPersons);
+             ResultSet rs = ps.executeQuery()) {
+            System.out.println("Database connected!");
+
+            while (rs.next()) {
+                name = rs.getString("name");
+            }
+        } catch (SQLException e) {
+            System.out.println("Database not connected!");
+        }
+        return name;
+    }
+
+    public long getUserIdOnlyByName(String userName) {
+        if (userName == null) {
+            return -1;
+        }
+
+        String sqlSelectAllPersons = String.format("SELECT user_id FROM users WHERE name='%s'" , userName);
+        String connectionUrl = DbService.DB_CONNECTION_URL;
+        long id = -1;
+        try (Connection conn = DriverManager.getConnection(connectionUrl, DbService.DB_USER, DbService.DB_PASSWORD);
+             PreparedStatement ps = conn.prepareStatement(sqlSelectAllPersons);
+             ResultSet rs = ps.executeQuery()) {
+            System.out.println("Database connected!");
+
+            while (rs.next()) {
+                id = rs.getLong("user_id");
             }
         } catch (SQLException e) {
             System.out.println("Database not connected!");

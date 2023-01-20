@@ -23,20 +23,30 @@ public class MovieController {
     UserService userService;
 
     //get movies in range
-    @RequestMapping(value = "/")
-    public ResponseEntity<Object> getMovies(@RequestBody MovieService.MoviesReqData moviesRange) {
-        return new ResponseEntity<>(movieService.getMovies(moviesRange), HttpStatus.OK);
+    @RequestMapping(value = "/", method = RequestMethod.POST)
+    public ResponseEntity<Object> getMovies(@RequestBody MovieService.MoviesReqData moviesRange,
+                                            @CookieValue(name = "user-id", defaultValue = "-1") String userId) {
+        if (userId.equals("-1"))
+        {
+            return new ResponseEntity<>("Please login", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(movieService.getMovies(moviesRange, userId), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/all")
-    public ResponseEntity<Object> getMovies() {
-        return new ResponseEntity<>(movieService.getAllMovies(-1), HttpStatus.OK);
-    }
 
     //to be continued
     @RequestMapping(value = "/recommend", method = RequestMethod.POST)
-    public ResponseEntity<Object> recommend(@RequestBody MovieService.MoviesRecommendData moviesRecommendData) {
-        return new ResponseEntity<>(movieService.getAllMovies(-1), HttpStatus.OK);
+    public ResponseEntity<?> recommend(@RequestBody MovieService.MoviesRecommendData moviesRecommendData,
+                                            @CookieValue(name = "user-id", defaultValue = "-1") String userId) {
+        if (userId.equals("-1"))
+        {
+            return new ResponseEntity<>("Please login", HttpStatus.BAD_REQUEST);
+        }
+        Boolean res = movieService.recommendMovie(moviesRecommendData, userId);
+        if (!res) {
+            return new ResponseEntity<>("", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>("", HttpStatus.OK);
     }
 
 
