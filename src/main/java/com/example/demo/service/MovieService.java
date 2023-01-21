@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Service
 public class MovieService {
 
-    Logger logger = LoggerFactory.getLogger(MovieService.class);
+    private Logger logger = LoggerFactory.getLogger(MovieService.class);
     @Autowired
     UserService userService;
 
@@ -73,7 +73,7 @@ public class MovieService {
                 "\t\trecommendation\n" +
                 "\tWHERE 1=1 "+
                 userRecommendedToOtherQ +
-                "\tGROUP BY\n" +
+                "\n\tGROUP BY\n" +
                 "\t\tmovie_id\n" +
                 "),\n" +
                 "recommended_to_user AS (\n" +
@@ -84,7 +84,7 @@ public class MovieService {
                 "\t\trecommendation\n" +
                 "\tWHERE 1=1 "+
                 recommendedToUser +
-                "\tGROUP BY\n" +
+                "\n\tGROUP BY\n" +
                 "\t\tmovie_id\n" +
                 "),\n" +
                 "\n" +
@@ -121,21 +121,21 @@ public class MovieService {
                 "\tINNER JOIN genress ON md.movie_id = genress.movie_id\n" +
                         userRecommendedToOtherJoin +
                         recommendedToUserJoin +
-                "\tWHERE 1=1 " +
+                "WHERE 1=1 " +
                         adultQ+
                         revenueQ+
                         budgetQ+
                         languageQ+
                         titleQ+
-                "\n\t ORDER BY md.movie_id;");
+                "ORDER BY md.movie_id;");
 
-        System.out.println("QUERY: " + sqlSelectAllMovies);
+        logger.info("\n----------- QUERY ----------\n" + sqlSelectAllMovies);
 
         String connectionUrl = DbService.DB_CONNECTION_URL;
         try (Connection conn = DriverManager.getConnection(connectionUrl, DbService.DB_USER, DbService.DB_PASSWORD);
              PreparedStatement ps = conn.prepareStatement(sqlSelectAllMovies);
              ResultSet rs = ps.executeQuery()) {
-            System.out.println("Database connected!");
+            logger.info("Database connected!");
 
 
             while (rs.next()) {
@@ -206,14 +206,11 @@ public class MovieService {
                         directors, actors, genres, null, user_recommended_to_other, recommended_to_user );
                 movies.add(movie);
 
-//                System.out.println(String.valueOf(id));
-//                System.out.println(name);
-//                System.out.println(lastName);
             }
         } catch (SQLException e) {
-            System.out.println("Database not connected!");
+            logger.error("{}", e.getMessage());
         }
-        System.out.println(movies.size());
+        logger.info(movies.size()+"");
         int numMovies = Integer.parseInt(moviesRange.numMovies);
         if (numMovies > -1) {
             return movies.stream().limit(numMovies).collect(Collectors.toList());
@@ -226,7 +223,7 @@ public class MovieService {
         if (!budgetFilter.isActive) {
             return "";
         }
-        String query = String.format("\nAND budget BETWEEN %s AND %s\n", budgetFilter.from, budgetFilter.to);
+        String query = String.format("\n\tAND budget BETWEEN %s AND %s\n", budgetFilter.from, budgetFilter.to);
 
         return query;
     }
@@ -235,7 +232,7 @@ public class MovieService {
         if (!adultFilter.isActive) {
             return "";
         }
-        String query = String.format("\nAND adult = '%s'\n", adultFilter.isAdult ? "TRUE" : "FALSE");
+        String query = String.format("\n\tAND adult = '%s'\n", adultFilter.isAdult ? "TRUE" : "FALSE");
 
         return query;
     }
@@ -244,7 +241,7 @@ public class MovieService {
         if (!revenueFilter.isActive) {
             return "";
         }
-        String query = String.format("\nAND revenue BETWEEN %s AND %S\n", revenueFilter.from, revenueFilter.to);
+        String query = String.format("\n\tAND revenue BETWEEN %s AND %S\n", revenueFilter.from, revenueFilter.to);
 
         return query;
     }
@@ -253,7 +250,7 @@ public class MovieService {
         if (!languageFilter.isActive) {
             return "";
         }
-        String query = String.format("\nAND lang = '%s'\n", languageFilter.language);
+        String query = String.format("\n\tAND lang = '%s'\n", languageFilter.language);
 
         return query;
     }
@@ -262,8 +259,8 @@ public class MovieService {
         if (!directorFilter.isActive) {
             return "";
         }
-        String query = String.format("\nAND movie_id IN (" +
-                "\tSELECT\n" +
+        String query = String.format("\n\tAND movie_id IN (" +
+                "\n\tSELECT\n" +
                 "\t\tmovie_id\n" +
                 "\tFROM\n" +
                 "\t\tdirectors\n" +
@@ -279,8 +276,8 @@ public class MovieService {
             return "";
         }
 
-        String query = String.format("\nAND movie_id IN (" +
-                "\tSELECT\n" +
+        String query = String.format("\n\tAND movie_id IN (" +
+                "\n\tSELECT\n" +
                 "\t\tmovie_id\n" +
                 "\tFROM\n" +
                 "\t\tactors\n" +
@@ -298,7 +295,7 @@ public class MovieService {
         if (!titleFilter.isActive) {
             return "";
         }
-        String query = String.format("\nAND title = '%s'\n", titleFilter.title);
+        String query = String.format("\n\tAND title = '%s'\n", titleFilter.title);
 
         return query;
 
@@ -308,8 +305,8 @@ public class MovieService {
         if (!genreFilter.isActive) {
             return "";
         }
-        String query = String.format("\nAND movie_id IN (" +
-                "\tSELECT\n" +
+        String query = String.format("\n\tAND movie_id IN (" +
+                "\n\tSELECT\n" +
                 "\t\tmovie_id\n" +
                 "\tFROM\n" +
                 "\t\tgenres\n" +
@@ -326,7 +323,7 @@ public class MovieService {
         if (!userRecommendedToOtherFilter.isActive) {
             return "";
         }
-        String query = String.format("\nAND user_id1=%s", userId1);
+        String query = String.format("\n\tAND user_id1=%s", userId1);
 
         return query;
 
@@ -336,7 +333,7 @@ public class MovieService {
         if (!recommendedToUserFilter.isActive) {
             return "";
         }
-        String query = String.format("\nAND user_id2=%s", userId1);
+        String query = String.format("\n\tAND user_id2=%s", userId1);
 
         return query;
 
@@ -361,12 +358,12 @@ public class MovieService {
         try (Connection conn = DriverManager.getConnection(connectionUrl, DbService.DB_USER, DbService.DB_PASSWORD);
              Statement stmt = conn.createStatement();
         ) {
-            System.out.println("Database connected!");
+            logger.info("Database connected!");
             stmt.executeUpdate(sqlSelectAllPersons);
             res = true;
 
         } catch (SQLException e) {
-            System.out.println("Database not connected!");
+            logger.error("{}", e.getMessage());
             res = false;
         }
 
@@ -394,8 +391,7 @@ public class MovieService {
                 return true;
             }
         } catch (SQLException e) {
-
-            System.out.println("Database not connected!");
+            logger.error("{}", e.getMessage());
         }
         return false;
     }

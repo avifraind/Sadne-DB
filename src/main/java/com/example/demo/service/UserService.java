@@ -1,12 +1,16 @@
 package com.example.demo.service;
 
 import com.example.demo.model.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.sql.*;
 
 @Service
 public class UserService {
+
+    private Logger logger = LoggerFactory.getLogger(UserService.class);
 
     public Boolean createNewUser(User user) {
         if (isUserExists(user)) {
@@ -95,7 +99,7 @@ public class UserService {
         try (Connection conn = DriverManager.getConnection(connectionUrl, DbService.DB_USER, DbService.DB_PASSWORD);
              PreparedStatement ps = conn.prepareStatement(sqlSelectAllPersons);
              ResultSet rs = ps.executeQuery()) {
-            System.out.println("Database connected!");
+            logger.info("Database connected!");
 
             while (rs.next()) {
                 id = rs.getLong("user_id");

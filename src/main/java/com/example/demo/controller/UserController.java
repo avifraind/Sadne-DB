@@ -64,13 +64,11 @@ public class UserController {
 
     @RequestMapping(value = "/logout", method = RequestMethod.GET)
     public ResponseEntity<?> logout(@CookieValue(name = "user-id", defaultValue = "-1") String userId) {
-        if (userId.equals("-1"))
-        {
-            return new ResponseEntity<>("User is not logged in", HttpStatus.OK);
-        }
-
         ResponseCookie deleteSpringCookie = ResponseCookie
-                .from("user-id", null)
+                .from("user-id", "-1")
+                .path("/")
+                .maxAge(0)
+                .domain("localhost")
                 .build();
 
         return ResponseEntity
